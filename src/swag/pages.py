@@ -35,7 +35,7 @@ class Post:
         template = build.get_template("minimal", self.root)
         body = f"<h1>{self.title}</h1>" + f"<p>{self.date.date()}</p>" + self.html
         html = template.replace("{{ body }}", body)
-        build.write_to_build(root, html, self.name)
+        build.write_to_build(root, html, f'blog/{self.name}')
 
     def get_summary(self):
         return f"<a href='{self.name}.html'>{self.title}</a>. ({self.date.day} {self.date.date().strftime('%B')} {self.date.year})"
@@ -83,17 +83,17 @@ def make_blog_index(root, posts_per_page=12):
 
         html = html + f'<div align="center"><p>{s}</p><p>{other_pages}</p></div>'
 
-        build.write_to_build(root, html, str(i + 1).zfill(2))
+        build.write_to_build(root, html, f'blog/{str(i + 1).zfill(2)}')
 
 
-def make_home():
-    template = build.get_template("minimal")
-    html = template.replace("{{ body }}", "<img src='assets/pprescott_avatar.jpeg'>")
-    build.write_to_build(html, "index")
+def make_home(root):
+    template = build.get_template("minimal", root)
+    html = template.replace("{{ body }}", "<img src='assets/avatar.svg'>")
+    build.write_to_build(root, html, "index")
 
 
 def main(root):
-    # make_home()
+    make_home(root)
     make_blog_index(root)
     [p.make_page(root) for p in sorted_posts(root)]
 
