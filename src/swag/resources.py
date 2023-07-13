@@ -1,3 +1,30 @@
+html_template = """
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ pagename }}</title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles.css" />
+  </head>
+  <body>
+    <nav>
+      <input type="checkbox" id="menu-toggle" />
+      <label for="menu-toggle" class="menu-btn">
+        <span class="menu-icon"></span>
+      </label>
+      <ul class="menu">
+        <li><a href="/">Home</a>.</li>
+        <li><a href="/blog/01.html">Blog</a>.</li>
+      </ul>
+    </nav>
+    <div class="container">{{ body }}</div>
+    <footer>
+      <p>This site was made with <a href="https://github.com/peterprescott/simple-swag"><code>swag</code></a>.</p>
+    </footer>
+    </body>
+</html>
+"""
+
+example_css = """
 /* Reset some default styles for better consistency */
 html, body, div, span, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, img, small, strong, b, i, em, sub, sup, strike, del, ins, u, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, figure, footer, header, nav, section {
   margin: 0;
@@ -246,3 +273,23 @@ nav {
     display: block;
   }
 }
+"""
+
+example_config = """
+[site]
+  name = "Joe's Blog"
+
+[owner]
+  name = 'Joe Bloggs'
+  email = 'joe@bloggs.com'
+
+[social]
+  github = 'joebloggs'
+  linkedin = 'joebloggs'
+
+[avatar]
+   seed = 'joebloggs'
+
+[colors]
+  palette = 'random'
+"""
