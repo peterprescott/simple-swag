@@ -1,9 +1,29 @@
 # simple-swag
 
-This is a very simplistic Static Site Generator.
+`swag` is a simple Static Website Auto-Generator (also known as a
+[Static Site Generator](https://en.wikipedia.org/wiki/Static_site_generator) or SSG).
 
-Or, for the sake of the acronym, a simple Static Website Auto-Generator.
+To use it, first install to your Python environment:
 
-I made it because I thought it would be both easier and more interesting
-to make my own, than to learn the quirks of one of the many existing
-SSGs on offer.
+```shell
+pip install git+https://github.com/peterprescott/simple-swag
+```
+
+Then make a new folder for your site:
+
+```shell
+mkdir new-site
+cd new-site
+```
+
+And use `swag` to `start` a new site:
+
+```shell
+swag start
+```
+
+Then serve it locally:
+
+```shell
+swag serve
+```

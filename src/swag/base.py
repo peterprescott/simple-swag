@@ -36,16 +36,22 @@ class Page:
         self._root = Path(get_project_root())
         self._md_interpreter = markdown.Markdown(
                 extensions=["full_yaml_metadata"])
+        self.load_template()
+        self.load_raw_content()
+        self.convert_raw_content()
+        self.make_page()
 
-    def load_template(self, template):
+    def load_template(self):
         with open(self._root / 'templates' / f'{self._template}.html') as f:
             self.template = f.read()
 
-    def load_raw_content():
+    def load_raw_content(self):
+        if not self._content:
+            return None
         with open(self._root / 'content' / self._content) as f:
             self.raw_content = f.read()
 
-    def convert_raw_content():
+    def convert_raw_content(self):
         if '.md' in self._content:
             self.content = self._md_interpreter.convert(self.raw_content)
             self.meta = self._md_interpreter.Meta.copy()
@@ -53,11 +59,23 @@ class Page:
             self.content = self.raw_content
             self.meta = {}
 
-    def make_page():
-        pass
+    def make_page(self):
+        body = f"<h1>{self.meta['title']}</h1>" + f"<p>{pd.Timestamp(self.meta['date']).date()}</p>" + self.content
+        self.html = self.template.replace("{{ body }}", body)
+
+    def write(self):
+        with open(self._root / 'build' /
+                  self._content.replace('.md','.html'), 'w') as f:
+                  f.write(self.html)
 
 
+def main():
+    md_files = os.listdir('content/posts')
+
+    pages = [Page(content=f'posts/{f}')
+             for f in md_files]
+
+    [p.write() for p in pages]
 
 
-page = Page()
-
+main()

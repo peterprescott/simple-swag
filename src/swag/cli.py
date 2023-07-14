@@ -8,6 +8,8 @@ from multiavatar.multiavatar import multiavatar
 
 import swag
 import swag.resources
+from swag.base import main
+
 
 
 def hello(name="World"):
