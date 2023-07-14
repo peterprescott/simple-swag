@@ -1,7 +1,7 @@
-from random import randint
 import os
 from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+import uuid
 
 import fire
 from multiavatar.multiavatar import multiavatar
@@ -32,18 +32,38 @@ def start(here=""):
         f.write(swag.resources.example_css)
     with open(root / "config.toml", "w") as f:
         f.write(swag.resources.example_config)
-    with open(root / "assets" / "avatar.svg", "w") as f:
-        f.write(multiavatar(str(randint(0, 1e11)), True, None))
+    avatar(root)
 
+def avatar(root=Path(os.getcwd())):
+    with open(Path(root) / "assets" / "avatar.svg", "w") as f:
+        f.write(multiavatar(uuid.uuid4(), None, None))
+    build(root)
+
+def lorem(root = Path(os.getcwd())):
     swag.lorem_posts.main(root)
-    swag.build.main(root)
 
-def serve():
+def build(root = Path(os.getcwd())):
+    swag.build.main(Path(root))
+
+def serve(port = 8000, address="localhost", max_tries=3):
     class Handler(SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(directory='build', *args, **kwargs)
-    server = HTTPServer(("localhost", 8000), Handler)
-    server.serve_forever()
+
+    i = 0
+    while i < max_tries:
+        try:
+            server = HTTPServer((address, port), Handler)
+            print(f'\nSWAG is serving your site at https://{address}:{port}')
+            server.serve_forever()
+        except OSError:
+            print(f'\nPort {port} is busy...')
+            port += 1
+            i +=1
+
+    if i==max_tries:
+        print(f'Reached attempt limit of {max_tries}, try starting with a different port')
+
 
 
 

@@ -73,7 +73,6 @@ def make_blog_index(root, posts_per_page=12):
                 for post in posts[i * posts_per_page : (i + 1) * posts_per_page]
             ]
         )
-        html = template.replace("{{ body }}", post_list)
         s = ""
         if i != 0:
             s += f'<a href=" {str(i).zfill(2)}.html"> << Previous << </a> '
@@ -81,14 +80,15 @@ def make_blog_index(root, posts_per_page=12):
         if i + 1 < num_index_pages:
             s += f'<a href=" {str(i+2).zfill(2)}.html">  >> Next >> </a> '
 
-        html = html + f'<div align="center"><p>{s}</p><p>{other_pages}</p></div>'
+        post_list = post_list + f'<div align="center"><p>{s}</p><p>{other_pages}</p></div>'
 
+        html = template.replace("{{ body }}", post_list)
         build.write_to_build(root, html, f'blog/{str(i + 1).zfill(2)}')
 
 
 def make_home(root):
     template = build.get_template("minimal", root)
-    html = template.replace("{{ body }}", "<img src='assets/avatar.svg'>")
+    html = template.replace("{{ body }}", "<img width=600, height=800 src='assets/avatar.svg'>")
     build.write_to_build(root, html, "index")
 
 
