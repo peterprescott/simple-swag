@@ -49,6 +49,11 @@ class Page:
                 extensions=["full_yaml_metadata"])
         self.meta = {}
 
+    def _load(self):
+        self.load_raw_content()
+        self.convert_raw_content()
+
+
     def load_template(self):
         with open(self._root / 'templates' / f'{self._template}.html') as f:
             self.template = f.read()
@@ -63,9 +68,16 @@ class Page:
         if '.md' in self._content.name:
             self.content = self._md_interpreter.convert(self.raw_content)
             self.meta = self._md_interpreter.Meta.copy()
+            self._load_meta()
         else:
             self.content = self.raw_content
             self.meta = {}
+
+    def _load_meta(self):
+        for k, v in self.meta.items():
+            setattr(self, k, v)
+        if hasattr(self, 'date'):
+            self.date = pd.Timestamp(self.date)
 
     def make_page(self):
         if 'title' in self.meta.keys():
@@ -73,19 +85,18 @@ class Page:
         else:
             title = ''
         if 'date' in self.meta.keys():
-            date = f"<p>{pd.Timestamp(self.meta['date']).date()}</p>"
+            date = f"<p>{self.date.date()}</p>"
         else:
             date = ''
         body = title + date + self.content
         self.html = self.template.replace("{{ body }}", body)
+        self.html = self.html.replace("{{ pagename }}", self.title)
 
     def write(self, filename=None):
         name = None
         if filename is None:
             name = self._content.name.replace('.md','.html') 
             filename = self._content.parent / name
-        print(f'_content: {self._content}; name: {name}; filename: {filename}'
-              )
         self.href = filename
         with open(self._root / 'build' / filename, 'w') as f:
                   f.write(self.html)
@@ -94,7 +105,7 @@ class Page:
         name = self._content.name.replace('.md',
                                                                  '.html')
         title = f'<h1><a href="{name}">{self.meta["title"]}</a></h1>'
-        date = f'<p>{self.meta["date"]}</p>'
+        date = f'<p>{self.meta["date"]}</p>' if hasattr(self, 'date') else ''
         return f'<div>{title}{date}</div>'
 
 
@@ -122,6 +133,7 @@ class Builder:
     def _build_content(self, basepath):
         contents = os.listdir(self.root / 'content' / basepath)
         summaries = []
+        pages = []
         for f in contents:
             fpath = basepath / f
             if not os.path.isdir(self.root / 'content' / fpath):
@@ -131,18 +143,24 @@ class Builder:
                 page.convert_raw_content()
                 page.make_page()
                 page.write()
-                summaries.append(page.get_summary())
+                pages.append(page)
+                # summaries.append(page.get_summary())
 
             else:
                 os.mkdir(self.root / 'build' / fpath)
                 subfolder_summary = self._build_content(fpath)
                 summaries.append(subfolder_summary)
+        pages = reversed(sorted(pages, key=lambda p: p.date if hasattr(p, 'date')
+                       else 0))
+        page_summaries = [p.get_summary() for p in pages]
+        summaries = page_summaries + summaries
         page = Page(content=basepath)
         page.load_template()
         page.content = '\n\n'.join(summaries)
+        page.title = basepath.name.capitalize()
         page.make_page()
         page.write(filename=basepath / 'index.html')
-        return f'<div><a href="/{basepath}">{basepath.name.capitalize()} Index</a></div>' 
+        return f'<div><h1><a href="/{basepath}">{basepath.name.capitalize()}</a>: {len(summaries)}</h1></div>' 
 
 
     def get_template(self, name):
