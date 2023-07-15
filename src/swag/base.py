@@ -47,10 +47,7 @@ class Page:
         self._root = Path(get_project_root())
         self._md_interpreter = markdown.Markdown(
                 extensions=["full_yaml_metadata"])
-        self.load_template()
-        self.load_raw_content()
-        self.convert_raw_content()
-        self.make_page()
+        self.meta = {}
 
     def load_template(self):
         with open(self._root / 'templates' / f'{self._template}.html') as f:
@@ -74,25 +71,33 @@ class Page:
         if 'title' in self.meta.keys():
             title = f"<h1>{self.meta['title']}</h1>" 
         else:
-            title = None
+            title = ''
         if 'date' in self.meta.keys():
             date = f"<p>{pd.Timestamp(self.meta['date']).date()}</p>"
         else:
-            date = None
+            date = ''
         body = title + date + self.content
         self.html = self.template.replace("{{ body }}", body)
 
-    def write(self):
-        with open(self._root / 'build' /
-                  self._content.parent /
-                  (self._content.name.replace('.md','.html')), 'w') as f:
+    def write(self, name=None):
+        if name is None:
+            name = self._content.name.replace('.md','.html') 
+        with open(self._root / 'build' / self._content.parent / name, 'w') as f:
                   f.write(self.html)
 
     def get_summary(self):
-        pass
-
+        href = self._content.parents[1] / self._content.name.replace('.md',
+                                                                 '.html')
+        title = f'<h1><a href="{href}">{self.meta["title"]}</a></h1>'
+        date = f'<p>{self.meta["date"]}</p>'
+        return f'<div>{title}{date}</div>'
 
 class IndexPage(Page):
+    def __init__(self, fpath, summaries, template):
+        self.fpath = fpath
+        self.summaries = summaries
+        self.template = template
+
     def make_index_list(self):
         pass
 
@@ -125,18 +130,25 @@ class Builder:
         for f in contents:
             fpath = basepath / f
             if not os.path.isdir(self.root / 'content' / fpath):
-                page = Page(
-                        content = fpath
-                        # .relative_to(Path('content'))                       
-                        )
+                page = Page(content = fpath)
+                page.load_template()
+                page.load_raw_content()
+                page.convert_raw_content()
+                page.make_page()
                 page.write()
                 summaries.append(page.get_summary())
 
             else:
                 os.mkdir(self.root / 'build' / fpath)
-                self._build_content(fpath)
-                subfolder_summary = None
+                subfolder_summary = self._build_content(fpath)
                 summaries.append(subfolder_summary)
+        page = Page(content=basepath)
+        page.load_template()
+        page.content = ''.join(summaries)
+        page.make_page()
+        page.write(name=basepath / 'index.html')
+        return f'<div><a href="/{basepath}">{basepath.name.capitalize()} Index</a></div>' 
+
 
     def get_template(self, name):
         if name not in self._templates.keys():
