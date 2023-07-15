@@ -8,7 +8,7 @@ from multiavatar.multiavatar import multiavatar
 
 import swag
 import swag.resources
-from swag.base import main
+import swag.base
 
 
 
@@ -45,7 +45,8 @@ def lorem(root = Path(os.getcwd())):
     swag.lorem_posts.main(root)
 
 def build(root = Path(os.getcwd())):
-    swag.build.main(Path(root))
+    swag.base.main()
+    # swag.build.main(Path(root))
 
 def serve(port = 8000, address="localhost", max_tries=3):
     class Handler(SimpleHTTPRequestHandler):
