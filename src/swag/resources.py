@@ -13,7 +13,7 @@ html_template = """
       </label>
       <ul class="menu">
         <li><a href="/">Home</a>.</li>
-        <li><a href="/blog/01.html">Blog</a>.</li>
+        <li><a href="/posts/">Blog</a>.</li>
       </ul>
     </nav>
     <div class="container">{{ body }}</div>

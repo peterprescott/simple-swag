@@ -79,28 +79,23 @@ class Page:
         body = title + date + self.content
         self.html = self.template.replace("{{ body }}", body)
 
-    def write(self, name=None):
-        if name is None:
+    def write(self, filename=None):
+        name = None
+        if filename is None:
             name = self._content.name.replace('.md','.html') 
-        with open(self._root / 'build' / self._content.parent / name, 'w') as f:
+            filename = self._content.parent / name
+        print(f'_content: {self._content}; name: {name}; filename: {filename}'
+              )
+        self.href = filename
+        with open(self._root / 'build' / filename, 'w') as f:
                   f.write(self.html)
 
     def get_summary(self):
-        href = self._content.parents[1] / self._content.name.replace('.md',
+        name = self._content.name.replace('.md',
                                                                  '.html')
-        title = f'<h1><a href="{href}">{self.meta["title"]}</a></h1>'
+        title = f'<h1><a href="{name}">{self.meta["title"]}</a></h1>'
         date = f'<p>{self.meta["date"]}</p>'
         return f'<div>{title}{date}</div>'
-
-class IndexPage(Page):
-    def __init__(self, fpath, summaries, template):
-        self.fpath = fpath
-        self.summaries = summaries
-        self.template = template
-
-    def make_index_list(self):
-        pass
-
 
 
 class Builder:
@@ -146,7 +141,7 @@ class Builder:
         page.load_template()
         page.content = ''.join(summaries)
         page.make_page()
-        page.write(name=basepath / 'index.html')
+        page.write(filename=basepath / 'index.html')
         return f'<div><a href="/{basepath}">{basepath.name.capitalize()} Index</a></div>' 
 
 
@@ -159,9 +154,3 @@ def main():
     builder = Builder()
     builder.restart()
     builder.build()
-    # md_files = os.listdir('content/posts')
-
-    # pages = [Page(content=f'posts/{f}')
-    #          for f in md_files]
-
-    # [p.write() for p in pages]

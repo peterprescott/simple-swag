@@ -25,7 +25,7 @@ def start(here=""):
     for folder in folders:
         if not os.path.exists(root / folder):
             os.mkdir(root / folder)
-    for subfolder in ["posts", "pages"]:
+    for subfolder in ["posts"]:
         if not os.path.exists(root / "content" / subfolder):
             os.mkdir(root / "content" / subfolder)
     with open(root / "templates" / "minimal.html", 'w') as f: 
@@ -34,24 +34,28 @@ def start(here=""):
         f.write(swag.resources.example_css)
     with open(root / "config.toml", "w") as f:
         f.write(swag.resources.example_config)
-    avatar(root)
+    avatar()
 
-def avatar(root=Path(os.getcwd())):
+def avatar():
+    root = swag.base.get_project_root()
     with open(Path(root) / "assets" / "avatar.svg", "w") as f:
         f.write(multiavatar(uuid.uuid4(), None, None))
-    build(root)
+    build()
 
-def lorem(root = Path(os.getcwd())):
+def lorem():
+    root = swag.base.get_project_root()
     swag.lorem_posts.main(root)
 
-def build(root = Path(os.getcwd())):
+def build():
+    root = swag.base.get_project_root()
     swag.base.main()
     # swag.build.main(Path(root))
 
 def serve(port = 8000, address="localhost", max_tries=3):
+    root = swag.base.get_project_root()
     class Handler(SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
-            super().__init__(directory='build', *args, **kwargs)
+            super().__init__(directory=root / 'build', *args, **kwargs)
 
     i = 0
     while i < max_tries:
@@ -62,9 +66,9 @@ def serve(port = 8000, address="localhost", max_tries=3):
         except OSError:
             print(f'\nPort {port} is busy...')
             port += 1
-            i +=1
+            i += 1
 
-    if i==max_tries:
+    if i == max_tries:
         print(f'Reached attempt limit of {max_tries}, try starting with a different port')
 
 
