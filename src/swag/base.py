@@ -139,7 +139,7 @@ class Builder:
                 summaries.append(subfolder_summary)
         page = Page(content=basepath)
         page.load_template()
-        page.content = ''.join(summaries)
+        page.content = '\n\n'.join(summaries)
         page.make_page()
         page.write(filename=basepath / 'index.html')
         return f'<div><a href="/{basepath}">{basepath.name.capitalize()} Index</a></div>' 
