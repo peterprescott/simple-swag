@@ -6,7 +6,7 @@ import uuid
 import fire
 from multiavatar.multiavatar import multiavatar
 
-import swag
+import swag.lorem
 import swag.resources
 import swag.base
 
