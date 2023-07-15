@@ -35,6 +35,6 @@ def save_post(root, i):
         f.write(post)
 
 
-def main(root):
-    for i in range(100):
+def main(root, number=10):
+    for i in range(number):
         save_post(root, i)

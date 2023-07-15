@@ -42,9 +42,9 @@ def avatar():
         f.write(multiavatar(uuid.uuid4(), None, None))
     build()
 
-def lorem():
+def lorem(number=10):
     root = swag.base.get_project_root()
-    swag.lorem_posts.main(root)
+    swag.lorem_posts.main(root, number=number)
 
 def build():
     root = swag.base.get_project_root()
